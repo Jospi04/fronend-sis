@@ -1,11 +1,25 @@
 let ws;
 let machineName;
 
+// Generar o recuperar clientId desde localStorage
+function getClientId() {
+  let clientId = localStorage.getItem('clientId');
+  if (!clientId) {
+    clientId = 'client-' + Math.random().toString(36).substr(2, 9); // Generar ID único
+    localStorage.setItem('clientId', clientId);
+  }
+  return clientId;
+}
+
 function connect() {
-  ws = new WebSocket('ws://localhost:8080');
+  ws = new WebSocket('ws://192.168.70.200:8080');
 
   ws.onopen = () => {
     console.log('Conectado al servidor');
+    // Enviar mensaje de identificación con clientId
+    const role = window.location.pathname.includes('index.html') ? 'mother' : 'client';
+    const clientId = getClientId();
+    ws.send(JSON.stringify({ type: 'identify', role, clientId }));
   };
 
   ws.onmessage = (event) => {
